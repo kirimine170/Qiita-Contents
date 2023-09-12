@@ -1,0 +1,95 @@
+---
+title: aoj-cliがbrewでインストールできない
+tags:
+  - 備忘録
+  - macOS
+  - AOJ
+  - 競技プログラミング
+private: false
+updated_at: ''
+id: 5d68389c2eb2755f241f
+organization_url_name: null
+slide: false
+---
+# 前提環境
+- M2 Macbook Pro
+  - macOS Ventura 13.4.1
+- zsh
+- VSCode
+- [aoj-cli](https://github.com/travelist/aoj-cli)
+
+# 背景
+travelist様の[Aizu Online Judge(AOJ)](https://onlinejudge.u-aizu.ac.jp/home)向けCLIツール[aoj-cli](https://github.com/travelist/aoj-cli)  
+をHomebrewでインストールしようとしたところ、以下のエラーが発生した。
+
+```bash
+% brew tap travelist/homebrew-aoj-cli
+% brew install aoj
+Error: aoj: wrong number of arguments (given1, expected 0)
+```
+
+# 解決方法
+brewやGo言語の知識がないため、バイナリを直接ダウンロードして、解決した。
+
+## 手順
+#### 1. [aoj-cliのリリースページ](https://github.com/travelist/aoj-cli/releases)よりバイナリをダウンロードする。
+#### 2. ダウンロードしたバイナリを適当なディレクトリに配置する。
+今回は競技プログラミング用のディレクトリとした。
+`/Users/ユーザ名/Desktop/競技プログラミング/AizuOnlineJudge/tools`
+![バイナリのディレクトリ配置](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/3145202/a840b05f-9f35-08d7-889c-b58617815bf5.png)
+#### 3. `.zshrc`に設定を追加する。
+```bash
+# /Users/ユーザ名/.zshrc
+# パスは保存したディレクトリに合わせて変更してください。
+export PATH="/Users/ユーザ名/Desktop/競技プログラミング/AizuOnlineJudge/tools:$PATH"
+``` 
+#### 4. aoj-cliの初期化を行う
+```bash
+% aoj init
+# 表示に従い使用する言語を入力する。今回は　JAVA とした。
+```
+
+# テンプレートファイルの設定
+brewを使わずにインストールしたため、以下のように設定を変更した。
+```diff_toml
+# /Users/ユーザ名/.aoj-cli/config.toml
+[gen]
+- template_file = "$HOME/.aoj-cli/template.txt"
++ template_file = "/Users/ユーザ名/.aoj-cli/Main.java"
+destination_file_name = "Main.java"
+
+[test]
+before_all="javac Main.java"
+before_each=""
+command="java Main"
+after_each=""
+after_all=""
+
+[submit]
+language = "JAVA"
+source_file_name = "Main.java"
+```
+
+```java
+// /Users/ユーザ名/.aoj-cli/Main.java
+
+import java.util.*;
+
+public class Main
+{
+    public static void main(String[] args)
+    {
+        try (Scanner sc = new Scanner(System.in))
+        {
+            // 処理
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+# 参考
+travelist様 [AOJ 用のコマンドライン CLI ツールを作った](https://qiita.com/travelist/items/746406b5c2b8c71d718c)
